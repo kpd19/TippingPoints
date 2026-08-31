@@ -4,7 +4,7 @@ library(cowplot)
 
 `%ni%` <- Negate(`%in%`)
 
-case1_ics <- read.table("Code/data/ICgrid/ICgrid_case1_alpha2theta20rF2p5to8p5in25.txt", sep = ",")
+case1_ics <- read.table("data/ICgrid_case1_alpha2theta20rF2p5to8p5in25.txt", sep = ",")
 
 source("functions.R")
 
