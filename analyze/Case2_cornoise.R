@@ -108,12 +108,23 @@ plt4 <- ptip_df %>% filter(sigma == 0.2) %>% ggplot() + aes(x = cor, y = ptip) +
   ggtitle(expression(sigma == 0.2))+
   coord_cartesian(ylim = c(ylims[ylims$sigma == 0.2,]$ymin, ylims[ylims$sigma == 0.2,]$ymax))
 
-plt5 <- ptip_df %>% filter(sigma != 0.2) %>% ggplot() + aes(x = cor, y = (ptip - baseline)/baseline*100, color = as.factor(sigma)) +
+case2_ptip_df <- case2_ptip_df %>% mutate(perc_change = (ptip-baseline)/baseline*100) %>% arrange(sigma,cor)
+case2_ptip_df$pred <- 0
+
+lm_0.05 <- lm(perc_change ~ cor, data = case2_ptip_df[case2_ptip_df$sigma == 0.05,])
+lm_0.1 <- lm(perc_change ~ cor, data = case2_ptip_df[case2_ptip_df$sigma == 0.1,])
+lm_0.15 <- lm(perc_change ~ cor, data = case2_ptip_df[case2_ptip_df$sigma == 0.15,])
+
+case2_ptip_df[case2_ptip_df$sigma == 0.05,]$pred <- predict(lm_0.05, case2_ptip_df[case2_ptip_df$sigma == 0.05,])
+case2_ptip_df[case2_ptip_df$sigma == 0.1,]$pred <- predict(lm_0.1, case2_ptip_df[case2_ptip_df$sigma == 0.1,])
+case2_ptip_df[case2_ptip_df$sigma == 0.15,]$pred <- predict(lm_0.15, case2_ptip_df[case2_ptip_df$sigma == 0.15,])
+
+plt5 <- case2_ptip_df %>% ggplot() + aes(x = cor, y = (ptip - baseline)/baseline*100, color = as.factor(sigma)) +
   geom_point() + theme_classic() + 
   xlab(expression("Correlation ("*rho*")")) + ylab("% change in tipping risk") + 
   theme(legend.position = "inside",
         legend.position.inside = c(0.9,0.8)) + 
-  geom_smooth(method = "lm", se = FALSE) + 
+  geom_line(aes(x = cor, y = pred, group = sigma, color = as.factor(sigma)), size = 1.2) + 
   scale_color_manual(expression(sigma),
                      values = c(`0.05` = "#2b83ba", `0.1` = "#abdda4", `0.15` = "#fdae61", `0.2` = "#d7191c"))
 
